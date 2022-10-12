@@ -281,17 +281,20 @@ async def move_to(client, target, log=print):
     await wakeUp(client)
     await stop(client)
 
-    while True:
+    current_height = initial_height
+
+    while current_height < target:
         await move_to_target(client, target)
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         height, speed = await get_height_speed(client)
         log(
             "Height: {:4.0f}mm Speed: {:2.0f}mm/s".format(
                 raw_to_mm(height), raw_to_speed(speed)
             )
         )
-        if speed == 0:
-            break
+
+        # if speed == 0:
+        #     break
 
 
 async def scan():
