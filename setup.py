@@ -9,7 +9,7 @@ with open(path.join(this_directory, "README.md")) as f:
     long_description = f.read()
 
 setup(
-    name="linak-ble-controller",
+    name="linak_ble_controller",
     version="1.0.0",
     author="Stausssi",
     author_email="",
@@ -19,7 +19,7 @@ setup(
     long_description_content_type="text/markdown",
     license="MIT",
     packages=find_packages(),
-    entry_points={"console_scripts": ["linak-ble-controller=linak-ble-controller.main:init"]},
+    entry_points={"console_scripts": ["linak-controller=linak_ble_controller.main:init"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
