@@ -15,18 +15,19 @@ from appdirs import user_config_dir
 
 IS_WINDOWS = sys.platform == "win32"
 
+
 # HELPER FUNCTIONS
 
 
-def mmToRaw(mm):
+def mm_to_raw(mm):
     return (mm - BASE_HEIGHT) * 10
 
 
-def rawToMM(raw):
+def raw_to_mm(raw):
     return (raw / 10) + BASE_HEIGHT
 
 
-def rawToSpeed(raw):
+def raw_to_speed(raw):
     return raw / 100
 
 
@@ -40,7 +41,7 @@ COMMAND_STOP = bytearray(struct.pack("<H", 255))
 COMMAND_WAKEUP = bytearray(struct.pack("<H", 254))
 
 # OTHER DEFINITIONS
-DEFAULT_CONFIG_DIR = user_config_dir("idasen-controller")
+DEFAULT_CONFIG_DIR = user_config_dir("linak-controller")
 DEFAULT_CONFIG_PATH = os.path.join(DEFAULT_CONFIG_DIR, "config.yaml")
 
 # CONFIGURATION SETUP
@@ -218,6 +219,7 @@ if IS_WINDOWS:
     # Windows doesn't use this parameter so rename it so it looks nice for the logs
     config["adapter_name"] = "default adapter"
 
+
 # MAIN PROGRAM
 
 
@@ -229,7 +231,7 @@ def get_height_data_from_notification(sender, data, log=print):
     height, speed = struct.unpack("<Hh", data)
     print(
         "Height: {:4.0f}mm Speed: {:2.0f}mm/s".format(
-            rawToMM(height), rawToSpeed(speed)
+            raw_to_mm(height), raw_to_speed(speed)
         )
     )
 
@@ -281,16 +283,15 @@ async def move_to(client, target, log=print):
 
     while True:
         await move_to_target(client, target)
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
         height, speed = await get_height_speed(client)
         log(
             "Height: {:4.0f}mm Speed: {:2.0f}mm/s".format(
-                rawToMM(height), rawToSpeed(speed)
+                raw_to_mm(height), raw_to_speed(speed)
             )
         )
         if speed == 0:
             break
-
 
 
 async def scan():
@@ -332,7 +333,7 @@ async def run_command(client, config, log=print):
     initial_height, speed = struct.unpack(
         "<Hh", await client.read_gatt_char(UUID_HEIGHT)
     )
-    log("Height: {:4.0f}mm".format(rawToMM(initial_height)))
+    log("Height: {:4.0f}mm".format(raw_to_mm(initial_height)))
     target = None
     if config.get("watch"):
         # Print changes to height data
@@ -346,11 +347,11 @@ async def run_command(client, config, log=print):
         # Move to custom height
         favouriteValue = config.get("favourites", {}).get(config["move_to"])
         if favouriteValue:
-            target = mmToRaw(favouriteValue)
+            target = mm_to_raw(favouriteValue)
             log(f'Moving to favourite height: {config["move_to"]}')
         else:
             try:
-                target = mmToRaw(int(config["move_to"]))
+                target = mm_to_raw(int(config["move_to"]))
                 log(f'Moving to height: {config["move_to"]}')
             except ValueError:
                 log(f'Not a valid height or favourite position: {config["move_to"]}')
@@ -363,7 +364,7 @@ async def run_command(client, config, log=print):
         # If we were moving to a target height, wait, then print the actual final height
         log(
             "Final height: {:4.0f}mm (Target: {:4.0f}mm)".format(
-                rawToMM(final_height), rawToMM(target)
+                raw_to_mm(final_height), raw_to_mm(target)
             )
         )
 
@@ -457,8 +458,10 @@ async def forward_command(config):
 
 async def main():
     """Set up the async event loop and signal handlers"""
+
+    client = None
+
     try:
-        client = None
         # Forward and scan don't require a connection so run them and exit
         if config["forward"]:
             await forward_command(config)
