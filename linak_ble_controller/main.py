@@ -479,6 +479,8 @@ async def main():
                 await run_tcp_server(client, config)
             else:
                 await run_command(client, config, print)
+    except KeyboardInterrupt:
+        print("Aborted.")
     except Exception as e:
         print("\nSomething unexpected went wrong:")
         print(e)
