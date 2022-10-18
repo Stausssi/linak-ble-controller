@@ -121,9 +121,10 @@ class BluetoothAdapter:
 
             services = await self.client.get_services()
             print("Received the services:")
-            print(services.services)
-            print("with characteristics:")
-            print(services.characteristics)
+            for s in services.services.values():
+                print(f"{s.uuid}:")
+                for c in s.characteristics:
+                    print(f"  - {c.uuid}:{c.description}")
 
             return self.client
         except BleakError as e:
