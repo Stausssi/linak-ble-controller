@@ -139,7 +139,7 @@ class BluetoothAdapter:
     async def run_command(self, config, log=print):
         """Begin the action specified by command line arguments and config"""
         # Always print current height
-        initial_height, speed = self.get_height_speed()
+        initial_height, speed = await self.get_height_speed()
         log("Height: {:4.0f}mm".format(self.unit_converter.raw_to_mm(initial_height)))
         target = None
         if config.get("watch"):
@@ -165,7 +165,7 @@ class BluetoothAdapter:
                     return
             await self.move_to(target, log=log)
         if target:
-            final_height, speed = self.get_height_speed()
+            final_height, speed = await self.get_height_speed()
             # If we were moving to a target height, wait, then print the actual final height
             log(
                 "Final height: {:4.0f}mm (Target: {:4.0f}mm)".format(
