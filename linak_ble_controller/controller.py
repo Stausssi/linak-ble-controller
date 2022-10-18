@@ -1,5 +1,6 @@
 import asyncio
 import json
+import traceback
 from functools import partial
 
 import aiohttp
@@ -41,8 +42,8 @@ class LinakController:
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            print("\nSomething unexpected went wrong:")
-            print(e)
+            print(f"\nSomething unexpected went wrong: {e}")
+            print(traceback.format_exc())
         finally:
             if self.bluetooth_adapter.client:
                 print("\rDisconnecting\r", end="")

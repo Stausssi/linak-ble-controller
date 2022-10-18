@@ -130,9 +130,9 @@ class BluetoothAdapter:
         if self.client.is_connected:
             await self.client.disconnect()
 
-    async def run_command(self, config=None, log=print):
+    async def run_command(self, config: Union[dict, UserConfig] = None, log=print):
         """Begin the action specified by command line arguments and config"""
-        
+
         if config is None:
             config = self.config
 
@@ -153,7 +153,7 @@ class BluetoothAdapter:
             move_target: Union[str, int] = config["move_to"]
 
             # Move to custom height
-            favourite_value = config["favourites", {}].get(move_target)
+            favourite_value = config.get("favourites", {}).get(move_target)
             if favourite_value:
                 target = self.unit_converter.mm_to_raw(favourite_value)
                 log(f'Moving to favourite height: {move_target}')

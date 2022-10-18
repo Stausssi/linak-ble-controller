@@ -93,3 +93,7 @@ class UserConfig:
 
     def __contains__(self, item):
         return self.config.__contains__(item)
+
+    def get(self, __key, default=None):
+        return self.config.get(__key, default)
+
