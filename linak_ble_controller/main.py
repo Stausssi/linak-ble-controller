@@ -502,5 +502,10 @@
 
 from linak_ble_controller.controller import LinakController
 
-if __name__ == "__main__":
+
+def main():
     LinakController()
+
+
+if __name__ == "__main__":
+    main()

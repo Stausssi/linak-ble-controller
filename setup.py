@@ -19,7 +19,7 @@ setup(
     long_description_content_type="text/markdown",
     license="MIT",
     packages=find_packages(),
-    entry_points={"console_scripts": ["linak-controller=linak_ble_controller.main:init"]},
+    entry_points={"console_scripts": ["linak-controller=linak_ble_controller.main:main"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
