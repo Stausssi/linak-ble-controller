@@ -119,8 +119,11 @@ class BluetoothAdapter:
             await self.client.connect(timeout=self.config["connection_timeout"])
             print("Connected {}".format(self.config["mac_address"]))
 
+            services = await self.client.get_services()
             print("Received the services:")
-            print(await self.client.get_services())
+            print(services.services)
+            print("with characteristics:")
+            print(services.characteristics)
 
             return self.client
         except BleakError as e:
