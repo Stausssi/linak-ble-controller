@@ -37,7 +37,7 @@ class LinakController:
                 elif self.user_config.config["tcp_server"]:
                     await self.run_tcp_server(client, self.user_config)
                 else:
-                    await self.bluetooth_adapter.run_command(self.user_config, print)
+                    await self.bluetooth_adapter.run_command()
         except KeyboardInterrupt:
             raise
         except Exception as e:

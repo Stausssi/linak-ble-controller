@@ -2,7 +2,7 @@ import asyncio
 import struct
 from enum import Enum
 from functools import partial
-from typing import Optional
+from typing import Optional, Union
 
 from bleak import BleakError, BleakScanner, BleakClient
 
@@ -119,12 +119,6 @@ class BluetoothAdapter:
             await self.client.connect(timeout=self.config["connection_timeout"])
             print("Connected {}".format(self.config["mac_address"]))
 
-            print("Received the services:")
-            for s in self.client.services.services.values():
-                print(f"{s.uuid}:")
-                for c in s.characteristics:
-                    print(f"  - {c.uuid}:{c.description}")
-
             return self.client
         except BleakError as e:
             print("Connecting failed")
@@ -136,13 +130,18 @@ class BluetoothAdapter:
         if self.client.is_connected:
             await self.client.disconnect()
 
-    async def run_command(self, config, log=print):
+    async def run_command(self, config=None, log=print):
         """Begin the action specified by command line arguments and config"""
+        
+        if config is None:
+            config = self.config
+
         # Always print current height
         initial_height, speed = await self.get_height_speed()
         log("Height: {:4.0f}mm".format(self.unit_converter.raw_to_mm(initial_height)))
+
         target = None
-        if config.get("watch"):
+        if config["watch"]:
             # Print changes to height data
             log("Watching for changes to desk height and speed")
             await self.subscribe(
@@ -150,20 +149,24 @@ class BluetoothAdapter:
             )
             wait = asyncio.get_event_loop().create_future()
             await wait
-        elif config.get("move_to"):
+        elif config["move_to"]:
+            move_target: Union[str, int] = config["move_to"]
+
             # Move to custom height
-            favourite_value = config.get("favourites", {}).get(config["move_to"])
+            favourite_value = config["favourites", {}].get(move_target)
             if favourite_value:
                 target = self.unit_converter.mm_to_raw(favourite_value)
-                log(f'Moving to favourite height: {config["move_to"]}')
+                log(f'Moving to favourite height: {move_target}')
             else:
                 try:
-                    target = self.unit_converter.mm_to_raw(int(config["move_to"]))
+                    target = self.unit_converter.mm_to_raw(int(move_target))
                     log(f'Moving to height: {config["move_to"]}')
                 except ValueError:
-                    log(f'Not a valid height or favourite position: {config["move_to"]}')
+                    log(f'Not a valid height or favourite position: {move_target}')
                     return
-            await self.move_to(target, log=log)
+
+            await self.move_to(target)
+
         if target:
             final_height, speed = await self.get_height_speed()
             # If we were moving to a target height, wait, then print the actual final height
