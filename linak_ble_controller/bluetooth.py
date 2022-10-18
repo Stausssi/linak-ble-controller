@@ -27,10 +27,10 @@ class BluetoothAdapter:
         self.client: Optional[BleakClient] = None
 
     async def safe_read_gatt(self, char: GattCharacteristics):
-        return await self.client.read_gatt_char(str(char))
+        return await self.client.read_gatt_char(str(char.value))
 
     async def safe_write_gatt(self, char: GattCharacteristics, data):
-        return await self.client.write_gatt_char(str(char), data)
+        return await self.client.write_gatt_char(str(char.value), data)
 
     async def get_height_speed(self):
         return struct.unpack("<Hh", await self.safe_read_gatt(GattCharacteristics.UUID_HEIGHT))
@@ -60,12 +60,12 @@ class BluetoothAdapter:
 
     async def subscribe(self, uuid: GattCharacteristics, callback):
         """Listen for notifications on a characteristic"""
-        await self.client.start_notify(str(uuid), callback)
+        await self.client.start_notify(str(uuid.value), callback)
 
     async def unsubscribe(self, uuid: GattCharacteristics):
         """Stop listening for notifications on a characteristic"""
         try:
-            await self.client.stop_notify(str(uuid))
+            await self.client.stop_notify(str(uuid.value))
         except KeyError:
             # This happens on Windows, I don't know why
             pass
