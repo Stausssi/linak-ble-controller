@@ -1,6 +1,7 @@
 import asyncio
 import json
 import traceback
+from concurrent.futures import CancelledError
 from functools import partial
 
 import aiohttp
@@ -20,7 +21,7 @@ class LinakController:
 
         try:
             asyncio.run(self.run())
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt | CancelledError):
             print("Interrupted...")
 
     async def run(self):
