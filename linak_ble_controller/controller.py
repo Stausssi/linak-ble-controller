@@ -40,7 +40,7 @@ class LinakController:
                     await self.run_tcp_server(client, self.user_config)
                 else:
                     await self.bluetooth_adapter.run_command()
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, CancelledError):
             raise
         except Exception as e:
             print(f"\nSomething unexpected went wrong: {e}")
