@@ -26,8 +26,14 @@ class BluetoothAdapter:
 
         self.client: Optional[BleakClient] = None
 
+    async def safe_read_gatt(self, char: GattCharacteristics):
+        return await self.client.read_gatt_char(str(char))
+
+    async def safe_write_gatt(self, char: GattCharacteristics, data):
+        return await self.client.write_gatt_char(str(char), data)
+
     async def get_height_speed(self):
-        return struct.unpack("<Hh", await self.client.read_gatt_char("99fa0021-338a-1024-8a49-009c0215f78a"))
+        return struct.unpack("<Hh", await self.safe_read_gatt(GattCharacteristics.UUID_HEIGHT))
 
     def get_height_data_from_notification(self, data):
         height, speed = struct.unpack("<Hh", data)
@@ -38,28 +44,28 @@ class BluetoothAdapter:
         )
 
     async def wake_up(self):
-        await self.client.write_gatt_char(GattCharacteristics.UUID_COMMAND, self.wake_command)
+        await self.safe_write_gatt(GattCharacteristics.UUID_COMMAND, self.wake_command)
 
     async def move_to_target(self, target):
         encoded_target = bytearray(struct.pack("<H", int(target)))
-        await self.client.write_gatt_char(GattCharacteristics.UUID_REFERENCE_INPUT, encoded_target)
+        await self.safe_write_gatt(GattCharacteristics.UUID_REFERENCE_INPUT, encoded_target)
 
     async def stop(self):
         try:
-            await self.client.write_gatt_char(GattCharacteristics.UUID_COMMAND, self.stop_command)
+            await self.safe_write_gatt(GattCharacteristics.UUID_COMMAND, self.stop_command)
         except BleakError:
             # This seems to result in an error on Raspberry Pis, but it does not affect movement
             # bleak.exc.BleakDBusError: [org.bluez.Error.NotPermitted] Write acquired
             pass
 
-    async def subscribe(self, uuid, callback):
+    async def subscribe(self, uuid: GattCharacteristics, callback):
         """Listen for notifications on a characteristic"""
-        await self.client.start_notify(uuid, callback)
+        await self.client.start_notify(str(uuid), callback)
 
-    async def unsubscribe(self, uuid):
+    async def unsubscribe(self, uuid: GattCharacteristics):
         """Stop listening for notifications on a characteristic"""
         try:
-            await self.client.stop_notify(uuid)
+            await self.client.stop_notify(str(uuid))
         except KeyError:
             # This happens on Windows, I don't know why
             pass
@@ -86,7 +92,7 @@ class BluetoothAdapter:
         """
 
         initial_height, speed = struct.unpack(
-            "<Hh", await self.client.read_gatt_char(GattCharacteristics.UUID_HEIGHT)
+            "<Hh", await self.safe_read_gatt(GattCharacteristics.UUID_HEIGHT)
         )
 
         if initial_height == target:
@@ -141,7 +147,7 @@ class BluetoothAdapter:
         log("Height: {:4.0f}mm".format(self.unit_converter.raw_to_mm(initial_height)))
 
         target = None
-        if config["watch"]:
+        if config.get("watch"):
             # Print changes to height data
             log("Watching for changes to desk height and speed")
             await self.subscribe(
@@ -149,7 +155,7 @@ class BluetoothAdapter:
             )
             wait = asyncio.get_event_loop().create_future()
             await wait
-        elif config["move_to"]:
+        elif config.get("move_to"):
             move_target: Union[str, int] = config["move_to"]
 
             # Move to custom height
