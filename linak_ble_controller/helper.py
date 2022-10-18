@@ -71,6 +71,12 @@ class CustomArgumentParser(ArgumentParser):
             help="File path to the config file (Default: {})".format(DEFAULT_CONFIG_PATH),
             default=DEFAULT_CONFIG_PATH,
         )
+        self.add_argument(
+            "--debug",
+            dest="debug",
+            action="store_true",
+            help="Print debug information"
+        )
 
         cmd = self.add_mutually_exclusive_group()
         cmd.add_argument(

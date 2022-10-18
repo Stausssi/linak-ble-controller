@@ -99,13 +99,13 @@ class BluetoothAdapter:
             return
 
         await self.wake_up()
-        await self.stop()
+        # await self.stop()
 
         current_height = initial_height
 
         while current_height < target:
             await self.move_to_target(target)
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(1)
             height, speed = await self.get_height_speed()
             log(
                 "Height: {:4.0f}mm Speed: {:2.0f}mm/s".format(
@@ -124,6 +124,13 @@ class BluetoothAdapter:
                 self.client = BleakClient(self.config["mac_address"], device=self.config["adapter_name"])
             await self.client.connect(timeout=self.config["connection_timeout"])
             print("Connected {}".format(self.config["mac_address"]))
+
+            if self.config["debug"]:
+                print("Received the services:")
+                for s in self.client.services.services.values():
+                    print(f"{s.uuid}:")
+                    for c in s.characteristics:
+                        print(f"  - {c.uuid}:{c.description}")
 
             return self.client
         except BleakError as e:
