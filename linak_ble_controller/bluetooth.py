@@ -119,9 +119,8 @@ class BluetoothAdapter:
             await self.client.connect(timeout=self.config["connection_timeout"])
             print("Connected {}".format(self.config["mac_address"]))
 
-            services = await self.client.get_services()
             print("Received the services:")
-            for s in services.services.values():
+            for s in self.client.services.services.values():
                 print(f"{s.uuid}:")
                 for c in s.characteristics:
                     print(f"  - {c.uuid}:{c.description}")
@@ -140,9 +139,7 @@ class BluetoothAdapter:
     async def run_command(self, config, log=print):
         """Begin the action specified by command line arguments and config"""
         # Always print current height
-        initial_height, speed = struct.unpack(
-            "<Hh", await self.client.read_gatt_char(GattCharacteristics.UUID_HEIGHT)
-        )
+        initial_height, speed = self.get_height_speed()
         log("Height: {:4.0f}mm".format(self.unit_converter.raw_to_mm(initial_height)))
         target = None
         if config.get("watch"):
@@ -168,9 +165,7 @@ class BluetoothAdapter:
                     return
             await self.move_to(target, log=log)
         if target:
-            final_height, speed = struct.unpack(
-                "<Hh", await self.client.read_gatt_char(GattCharacteristics.UUID_HEIGHT)
-            )
+            final_height, speed = self.get_height_speed()
             # If we were moving to a target height, wait, then print the actual final height
             log(
                 "Final height: {:4.0f}mm (Target: {:4.0f}mm)".format(
