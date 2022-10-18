@@ -21,7 +21,7 @@ class LinakController:
 
         try:
             asyncio.run(self.run())
-        except (KeyboardInterrupt | CancelledError):
+        except (KeyboardInterrupt, CancelledError) as _:
             print("Interrupted...")
 
     async def run(self):
