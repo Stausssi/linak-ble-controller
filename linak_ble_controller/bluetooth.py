@@ -2,6 +2,7 @@ import asyncio
 import struct
 from enum import Enum
 from functools import partial
+from typing import Optional
 
 from bleak import BleakError, BleakScanner, BleakClient
 
@@ -23,7 +24,7 @@ class BluetoothAdapter:
         self.stop_command = bytearray(struct.pack("<H", 255))
         self.wake_command = bytearray(struct.pack("<H", 254))
 
-        self.client = None
+        self.client: Optional[BleakClient] = None
 
     async def get_height_speed(self):
         return struct.unpack("<Hh", await self.client.read_gatt_char(GattCharacteristics.UUID_HEIGHT))
@@ -117,6 +118,10 @@ class BluetoothAdapter:
                 self.client = BleakClient(self.config["mac_address"], device=self.config["adapter_name"])
             await self.client.connect(timeout=self.config["connection_timeout"])
             print("Connected {}".format(self.config["mac_address"]))
+
+            print("Received the services:")
+            print(await self.client.get_services())
+
             return self.client
         except BleakError as e:
             print("Connecting failed")

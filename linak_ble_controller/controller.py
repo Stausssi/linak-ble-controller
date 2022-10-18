@@ -48,7 +48,7 @@ class LinakController:
                 print("\rDisconnecting\r", end="")
                 await self.bluetooth_adapter.stop()
                 await self.bluetooth_adapter.disconnect()
-                print("Disconnected")
+                print("Disconnected!")
 
     async def run_tcp_server(self, client, config):
         """Start a simple tcp server to listen for commands"""
