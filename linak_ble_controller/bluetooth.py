@@ -10,9 +10,9 @@ from linak_ble_controller.helper import UnitConverter
 
 
 class GattCharacteristics(str, Enum):
-    UUID_HEIGHT = "99fa0021-338a-1024-8a49-009c0215f78a"
+    UUID_HEIGHT = "99fa0020-338a-1024-8a49-009c0215f78a"
     UUID_COMMAND = "99fa0002-338a-1024-8a49-009c0215f78a"
-    UUID_REFERENCE_INPUT = "99fa0031-338a-1024-8a49-009c0215f78a"
+    UUID_REFERENCE_INPUT = "99fa0030-338a-1024-8a49-009c0215f78a"
 
 
 class BluetoothAdapter:
