@@ -27,7 +27,7 @@ class BluetoothAdapter:
         self.client: Optional[BleakClient] = None
 
     async def get_height_speed(self):
-        return struct.unpack("<Hh", await self.client.read_gatt_char(GattCharacteristics.UUID_HEIGHT))
+        return struct.unpack("<Hh", await self.client.read_gatt_char("99fa0021-338a-1024-8a49-009c0215f78a"))
 
     def get_height_data_from_notification(self, data):
         height, speed = struct.unpack("<Hh", data)
